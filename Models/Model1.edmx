@@ -1,0 +1,201 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+    <Schema Namespace="Hertz_ProjectsModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="api_configuration">
+          <Key>
+            <PropertyRef Name="idconfiugration" />
+          </Key>
+          <Property Name="idconfiugration" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="CompanyDB" Type="nvarchar" MaxLength="50" />
+          <Property Name="UserName" Type="nvarchar" MaxLength="50" />
+          <Property Name="Password" Type="nvarchar" MaxLength="50" />
+          <Property Name="ip" Type="nvarchar" MaxLength="50" />
+        </EntityType>
+        <EntityType Name="correlatives">
+          <Key>
+            <PropertyRef Name="id_Seq" />
+          </Key>
+          <Property Name="id_Seq" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="serie" Type="int" />
+          <Property Name="location_code" Type="varchar" MaxLength="50" />
+          <Property Name="cost_center" Type="nvarchar" MaxLength="15" />
+          <Property Name="company" Type="nchar" MaxLength="1" />
+          <Property Name="rentworks_code" Type="varchar" MaxLength="50" />
+        </EntityType>
+        <EntityType Name="locations">
+          <Key>
+            <PropertyRef Name="location_id" />
+          </Key>
+          <Property Name="location_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="code" Type="nvarchar" MaxLength="50" />
+          <Property Name="name" Type="nvarchar" MaxLength="50" />
+          <Property Name="description" Type="nvarchar" MaxLength="300" />
+          <Property Name="franquicia" Type="nvarchar" MaxLength="100" />
+          <Property Name="ubicacion" Type="varchar" MaxLength="150" />
+        </EntityType>
+        <EntityType Name="ssai_users">
+          <Key>
+            <PropertyRef Name="id_user" />
+          </Key>
+          <Property Name="id_user" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="rolecode" Type="nvarchar" MaxLength="50" />
+          <Property Name="locationcode" Type="nvarchar" MaxLength="50" />
+          <Property Name="codigoType" Type="nvarchar" MaxLength="50" />
+          <Property Name="id_vendedor" Type="int" />
+          <Property Name="employee_first_name" Type="nvarchar" MaxLength="100" />
+          <Property Name="employee_last_name" Type="nvarchar" MaxLength="100" />
+          <Property Name="user_SSAI" Type="nvarchar" MaxLength="100" />
+          <Property Name="password_SSAI" Type="nvarchar" MaxLength="50" />
+          <Property Name="state" Type="bit" />
+          <Property Name="firma" Type="varbinary(max)" />
+        </EntityType>
+        <EntityContainer Name="Hertz_ProjectsModelStoreContainer">
+          <EntitySet Name="api_configuration" EntityType="Self.api_configuration" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="correlatives" EntityType="Self.correlatives" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="locations" EntityType="Self.locations" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ssai_users" EntityType="Self.ssai_users" Schema="dbo" store:Type="Tables" />
+        </EntityContainer>
+      </Schema></edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="Hertz_ProjectsModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="api_configuration">
+          <Key>
+            <PropertyRef Name="idconfiugration" />
+          </Key>
+          <Property Name="idconfiugration" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="CompanyDB" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="UserName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Password" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="ip" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="correlatives">
+          <Key>
+            <PropertyRef Name="id_Seq" />
+          </Key>
+          <Property Name="id_Seq" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="serie" Type="Int32" />
+          <Property Name="location_code" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="cost_center" Type="String" MaxLength="15" FixedLength="false" Unicode="true" />
+          <Property Name="company" Type="String" MaxLength="1" FixedLength="true" Unicode="true" />
+          <Property Name="rentworks_code" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="ssai_users">
+          <Key>
+            <PropertyRef Name="id_user" />
+          </Key>
+          <Property Name="id_user" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="rolecode" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="locationcode" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="codigoType" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="id_vendedor" Type="Int32" />
+          <Property Name="employee_first_name" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="employee_last_name" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="user_SSAI" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="password_SSAI" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="state" Type="Boolean" />
+          <Property Name="firma" Type="Binary" MaxLength="Max" FixedLength="false" />
+        </EntityType>
+        <EntityContainer Name="Hertz_ProjectsEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="api_configuration" EntityType="Self.api_configuration" />
+          <EntitySet Name="correlatives" EntityType="Self.correlatives" />
+          <EntitySet Name="ssai_users" EntityType="Self.ssai_users" />
+          <EntitySet Name="locations" EntityType="Hertz_ProjectsModel.locations" />
+        </EntityContainer>
+        <EntityType Name="locations">
+          <Key>
+            <PropertyRef Name="location_id" />
+          </Key>
+          <Property Name="location_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="code" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="name" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="description" Type="String" MaxLength="300" FixedLength="false" Unicode="true" />
+          <Property Name="franquicia" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="ubicacion" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+        </EntityType>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="Hertz_ProjectsModelStoreContainer" CdmEntityContainer="Hertz_ProjectsEntities">
+          <EntitySetMapping Name="api_configuration">
+            <EntityTypeMapping TypeName="Hertz_ProjectsModel.api_configuration">
+              <MappingFragment StoreEntitySet="api_configuration">
+                <ScalarProperty Name="idconfiugration" ColumnName="idconfiugration" />
+                <ScalarProperty Name="CompanyDB" ColumnName="CompanyDB" />
+                <ScalarProperty Name="UserName" ColumnName="UserName" />
+                <ScalarProperty Name="Password" ColumnName="Password" />
+                <ScalarProperty Name="ip" ColumnName="ip" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="correlatives">
+            <EntityTypeMapping TypeName="Hertz_ProjectsModel.correlatives">
+              <MappingFragment StoreEntitySet="correlatives">
+                <ScalarProperty Name="rentworks_code" ColumnName="rentworks_code" />
+                <ScalarProperty Name="id_Seq" ColumnName="id_Seq" />
+                <ScalarProperty Name="serie" ColumnName="serie" />
+                <ScalarProperty Name="location_code" ColumnName="location_code" />
+                <ScalarProperty Name="cost_center" ColumnName="cost_center" />
+                <ScalarProperty Name="company" ColumnName="company" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ssai_users">
+            <EntityTypeMapping TypeName="Hertz_ProjectsModel.ssai_users">
+              <MappingFragment StoreEntitySet="ssai_users">
+                <ScalarProperty Name="id_user" ColumnName="id_user" />
+                <ScalarProperty Name="rolecode" ColumnName="rolecode" />
+                <ScalarProperty Name="locationcode" ColumnName="locationcode" />
+                <ScalarProperty Name="codigoType" ColumnName="codigoType" />
+                <ScalarProperty Name="id_vendedor" ColumnName="id_vendedor" />
+                <ScalarProperty Name="employee_first_name" ColumnName="employee_first_name" />
+                <ScalarProperty Name="employee_last_name" ColumnName="employee_last_name" />
+                <ScalarProperty Name="user_SSAI" ColumnName="user_SSAI" />
+                <ScalarProperty Name="password_SSAI" ColumnName="password_SSAI" />
+                <ScalarProperty Name="state" ColumnName="state" />
+                <ScalarProperty Name="firma" ColumnName="firma" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="locations">
+            <EntityTypeMapping TypeName="Hertz_ProjectsModel.locations">
+              <MappingFragment StoreEntitySet="locations">
+                <ScalarProperty Name="ubicacion" ColumnName="ubicacion" />
+                <ScalarProperty Name="franquicia" ColumnName="franquicia" />
+                <ScalarProperty Name="description" ColumnName="description" />
+                <ScalarProperty Name="name" ColumnName="name" />
+                <ScalarProperty Name="code" ColumnName="code" />
+                <ScalarProperty Name="location_id" ColumnName="location_id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="false" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>
