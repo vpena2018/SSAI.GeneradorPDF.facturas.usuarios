@@ -30,10 +30,13 @@ namespace SSAI.GeneradorPDF.facturas.usuarios
             try
             {
 
+                DateTime desde = DateTime.Today.AddDays(0);
+
+
                 var facturas =
                     await Logic.exportacion
                         .ObtenerFacturasParaGenerarPDF(
-                            DateTime.Now.Date,
+                            desde,
                             DateTime.Now.Date
                         );
 
@@ -109,6 +112,62 @@ namespace SSAI.GeneradorPDF.facturas.usuarios
 
                         Thread.Sleep(1000);
 
+                        string contratoFinal = ObtenerContratoRentworks(
+                        factura.contrato,
+                        infocorrelativo);
+
+                        string DirectorioBasecarpetaFacturas = ObtenerRutaFacturas(factura.contrato, factura.usuario);
+
+                        try
+                        {
+                            if (!Directory.Exists(DirectorioBasecarpetaFacturas))
+                            {
+                                File.AppendAllText(
+                                    Path.Combine(
+                                        AppDomain.CurrentDomain.BaseDirectory,
+                                        "errores.txt"
+                                    ),
+                                    $"{DateTime.Now} - {$"No se encontró carpeta {DirectorioBasecarpetaFacturas} para contrato {contratoFinal}"}\r\n\r\n"
+                                );
+
+                                continue;
+                                //Directory.CreateDirectory(DirectorioBasecarpetaFacturas);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            File.AppendAllText(
+                                Path.Combine(
+                                    AppDomain.CurrentDomain.BaseDirectory,
+                                    "errores.txt"
+                                ),
+                                $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} - Error: {ex}\r\n\r\n"
+                            );
+
+                            continue;
+                        }
+
+
+                        string carpetaFacturas = ObtenerCarpetaContrato(DirectorioBasecarpetaFacturas, contratoFinal);
+
+                        if (string.IsNullOrEmpty(carpetaFacturas))
+                        {
+                           continue;
+                        }
+
+                        //if (string.IsNullOrEmpty(carpetaFacturas))
+                        //{
+                        //File.AppendAllText(
+                        //    Path.Combine(
+                        //        AppDomain.CurrentDomain.BaseDirectory,
+                        //        "errores_copias.txt"
+                        //    ),
+                        //    $"{DateTime.Now} - {$"No se encontró carpeta en {DirectorioBasecarpetaFacturas} para contrato {contratoFinal}"}\r\n\r\n"
+                        //);
+
+                        //    continue;
+                        //}
+
 
                         var rowusuario = usuarios
                             .FirstOrDefault(x =>
@@ -148,11 +207,6 @@ namespace SSAI.GeneradorPDF.facturas.usuarios
 
                         string error = "Error generando PDF";
 
-                        string contratoFinal = ObtenerContratoRentworks(
-                        factura.contrato,
-                        infocorrelativo);
-
-
 
                         bool pdfCopiasOk =
                             Logic.exportacion.generatePdfFacturaCopias(
@@ -189,9 +243,7 @@ namespace SSAI.GeneradorPDF.facturas.usuarios
                             if (pdfCopiasOk)
                             {
 
-                                string carpetaFacturas = ObtenerRutaFacturas(factura.contrato);
-
-                                Directory.CreateDirectory(carpetaFacturas);
+                                //Directory.CreateDirectory(carpetaFacturas);
 
                                 string rutaPdfFinal = Path.Combine(
                                     carpetaFacturas,
@@ -207,6 +259,11 @@ namespace SSAI.GeneradorPDF.facturas.usuarios
                                     Logic.exportacion.EsperarArchivoLibre(
                                         rutaPdfFinal
                                     );
+
+
+                                //copiar la factura en el folder donde va ubicada
+
+                                //
 
                                 await Logic.exportacion.GuardarFacturaPdfGenerado(
                                     factura.InvoiceId,
@@ -234,7 +291,7 @@ namespace SSAI.GeneradorPDF.facturas.usuarios
                         File.AppendAllText(
                             Path.Combine(
                                 AppDomain.CurrentDomain.BaseDirectory,
-                                "errores_copias.txt"
+                                "errores.txt"
                             ),
                             $"{DateTime.Now} - {ex}\r\n\r\n"
                         );
@@ -246,7 +303,7 @@ namespace SSAI.GeneradorPDF.facturas.usuarios
                 File.AppendAllText(
                     Path.Combine(
                         AppDomain.CurrentDomain.BaseDirectory,
-                        "errores_copias_general.txt"
+                        "errores.txt"
                     ),
                     $"{DateTime.Now} - {ex}\r\n\r\n"
                 );
@@ -257,220 +314,7 @@ namespace SSAI.GeneradorPDF.facturas.usuarios
             }
         }
 
-        private static void VerificarYRegenerarFacturasFaltantes(
-List<Logic.exportacion.facturaEnvioRow> facturas, List<Models.correlatives> infocorrelativo)
-        {
-            try
-            {
-                string carpetaFinal =
-                    @"\\10.10.1.31\scaneos\SAP\facturas_pdf_SAP";
 
-                var usuarios = new Models.Hertz_ProjectsEntities()
-                    .ssai_users
-                    .ToList();
-
-                // BUSCAR FALTANTES
-                var facturasFaltantes = facturas
-                    .Where(f =>
-                    {
-                        string rutaPdfFinal = Path.Combine(
-                            carpetaFinal,
-                            $"Factura_{f.contrato}.pdf"
-                        );
-
-                        return !File.Exists(rutaPdfFinal);
-                    })
-                    .ToList();
-
-                // SI NO HAY FALTANTES
-                if (facturasFaltantes.Count <= 0)
-                {
-                    return;
-                }
-
-                // REGENERAR
-                foreach (var factura in facturasFaltantes)
-                {
-                    try
-                    {
-                        var rowusuario = usuarios
-                            .FirstOrDefault(x =>
-                                x.user_SSAI == factura.usuario);
-
-                        byte[] firma = null;
-
-                        if (rowusuario != null)
-                        {
-                            firma = rowusuario.firma;
-                        }
-
-                        var numeroFactura = factura.n_factura
-                            .Replace("-", "")
-                            .Trim();
-
-                        string carpetaCopia = Path.Combine(
-                            AppDomain.CurrentDomain.BaseDirectory,
-                            "firmas_copias"
-                        );
-
-                        if (!Directory.Exists(carpetaCopia))
-                        {
-                            Directory.CreateDirectory(carpetaCopia);
-                        }
-
-                        //string rutaFirma = Path.Combine(
-                        //    carpetaCopia,
-                        //    $"firma_retry_{numeroFactura}.png"
-                        //);
-
-                        string rutaFirma = Path.Combine(
-                            carpetaCopia,
-                            $"firma_retry_{numeroFactura}_{Guid.NewGuid()}.png"
-                        );
-
-                        List<string> rutasPdfGenerados =
-                            new List<string>();
-
-                        string error = string.Empty;
-
-                        bool pdfCopiasOk =
-                            Logic.exportacion.generatePdfFacturaCopias(
-                                factura,
-                                factura.docEntry,
-                                numeroFactura,
-                                firma,
-                                rutaFirma,
-                                out rutasPdfGenerados,
-                                out error
-                            );
-
-                        if (!pdfCopiasOk)
-                        {
-                            File.AppendAllText(
-                                Path.Combine(
-                                    AppDomain.CurrentDomain.BaseDirectory,
-                                    "errores_retry.txt"
-                                ),
-                                $"{DateTime.Now} - ERROR GENERANDO {factura.contrato} - {error}\r\n"
-                            );
-
-                            continue;
-                        }
-
-                        // VALIDAR TEMPORALES
-                        bool todosExisten = true;
-
-                        foreach (var rutaPdf in rutasPdfGenerados)
-                        {
-                            int intentos = 0;
-
-                            while (!File.Exists(rutaPdf) &&
-                                   intentos < 10)
-                            {
-                                Thread.Sleep(300);
-                                intentos++;
-                            }
-
-                            if (!File.Exists(rutaPdf))
-                            {
-                                todosExisten = false;
-
-                                File.AppendAllText(
-                                    Path.Combine(
-                                        AppDomain.CurrentDomain.BaseDirectory,
-                                        "errores_retry.txt"
-                                    ),
-                                    $"{DateTime.Now} - TEMP NO EXISTE {rutaPdf}\r\n"
-                                );
-
-                                break;
-                            }
-                        }
-
-                        if (!todosExisten)
-                        {
-                            continue;
-                        }
-
-                        // MERGE FINAL
-                        string rutaPdfFinal = Path.Combine(
-                            carpetaFinal,
-                            $"Factura_{factura.contrato}.pdf"
-                        );
-
-                        // SI EXISTE BORRAR
-                        try
-                        {
-                            if (File.Exists(rutaPdfFinal))
-                            {
-                                File.Delete(rutaPdfFinal);
-                            }
-                        }
-                        catch
-                        {
-                        }
-
-                        Logic.exportacion.UnirPdfs(
-                            rutasPdfGenerados,
-                            rutaPdfFinal
-                        );
-
-                        // VALIDAR FINAL
-                        int intentosFinal = 0;
-
-                        while (!File.Exists(rutaPdfFinal) &&
-                               intentosFinal < 10)
-                        {
-                            Thread.Sleep(500);
-                            intentosFinal++;
-                        }
-
-                        if (!File.Exists(rutaPdfFinal))
-                        {
-                            File.AppendAllText(
-                                Path.Combine(
-                                    AppDomain.CurrentDomain.BaseDirectory,
-                                    "errores_retry.txt"
-                                ),
-                                $"{DateTime.Now} - FINAL NO EXISTE {factura.contrato}\r\n"
-                            );
-                        }
-                        else
-                        {
-                            File.AppendAllText(
-                                Path.Combine(
-                                    AppDomain.CurrentDomain.BaseDirectory,
-                                    "errores_retry.txt"
-                                ),
-                                $"{DateTime.Now} - RECUPERADA {factura.contrato}\r\n"
-                            );
-                        }
-
-                        Thread.Sleep(1000);
-                    }
-                    catch (Exception ex)
-                    {
-                        File.AppendAllText(
-                            Path.Combine(
-                                AppDomain.CurrentDomain.BaseDirectory,
-                                "errores_retry.txt"
-                            ),
-                            $"{DateTime.Now} - {factura.contrato} - {ex}\r\n\r\n"
-                        );
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                File.AppendAllText(
-                    Path.Combine(
-                        AppDomain.CurrentDomain.BaseDirectory,
-                        "errores_retry_general.txt"
-                    ),
-                    $"{DateTime.Now} - {ex}\r\n\r\n"
-                );
-            }
-        }
         private static string ObtenerContratoRentworks(
     string contrato,
     List<Models.correlatives> correlativos)
@@ -517,7 +361,37 @@ List<Logic.exportacion.facturaEnvioRow> facturas, List<Models.correlatives> info
             return contrato;
         }
 
-        private static string ObtenerRutaFacturas(string contrato)
+        private static string ObtenerCarpetaContrato(
+            string directorioBase,
+            string contratoFinal)
+        {
+            string numeroContrato = contratoFinal.Replace("Factura_", "");
+
+            string carpeta = Directory
+                .GetDirectories(directorioBase)
+                .FirstOrDefault(d =>
+                    Path.GetFileName(d)
+                        .StartsWith(
+                            numeroContrato,
+                            StringComparison.OrdinalIgnoreCase
+                        )
+                );
+
+            if (string.IsNullOrEmpty(carpeta))
+            {
+                File.AppendAllText(
+                    Path.Combine(
+                        AppDomain.CurrentDomain.BaseDirectory,
+                        "errores.txt"
+                    ),
+                    $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} - No se encontró carpeta en {directorioBase} para contrato {contratoFinal}\r\n\r\n"
+                );
+            }
+
+            return carpeta;
+        }
+
+        private static string ObtenerRutaFacturas(string contrato, string usuario)
         {
             if (string.IsNullOrWhiteSpace(contrato))
                 throw new ArgumentException("Contrato inválido");
@@ -537,18 +411,42 @@ List<Logic.exportacion.facturaEnvioRow> facturas, List<Models.correlatives> info
                     .Select(x => x.ubicacion)
                     .FirstOrDefault();
 
-                switch (ubicacion?.Trim().ToUpper())
+                ubicacion = ubicacion?.Trim().ToUpper();
+
+                string rutaUsuario;
+                string rutaDefault;
+
+                switch (ubicacion)
                 {
                     case "SPS":
-                        return @"\\10.10.1.31\ca-sps\facturas";
+                        rutaUsuario = $@"\\10.10.1.31\ca-sps\{usuario}";
+                        rutaDefault = @"\\10.10.1.31\ca-sps\dvelasquez\asistenteventassps";
+                        break;
 
                     case "TGU":
-                        return @"\\10.10.1.31\ca-tgu\facturas";
+                        rutaUsuario = $@"\\10.10.1.31\ca-tgu\{usuario}";
+                        rutaDefault = @"\\10.10.1.31\ca-tgu\asistenteventastgu";
+                        break;
 
                     default:
                         throw new Exception(
                             $"No se encontró ubicación para el cost center '{costCenter}'");
                 }
+
+                string rutaFinal;
+
+                try
+                {
+                    rutaFinal = Directory.Exists(rutaUsuario)
+                        ? rutaUsuario
+                        : rutaDefault;
+                }
+                catch
+                {
+                    rutaFinal = rutaDefault;
+                }
+
+                return rutaFinal;
             }
         }
 
