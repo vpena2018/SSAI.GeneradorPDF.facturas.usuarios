@@ -17,7 +17,7 @@ namespace SSAI.GeneradorPDF.facturas.usuarios
 
             mutex = new Mutex(
                 true,
-                "SSAI_GENERADOR_FACTURAS_MUTEX",
+                "SSAI_GENERADOR_FACTURAS_USUARIOS_MUTEX",
                 out createdNew
             );
 
@@ -36,7 +36,7 @@ namespace SSAI.GeneradorPDF.facturas.usuarios
                 var facturas =
                     await Logic.exportacion
                         .ObtenerFacturasParaGenerarPDF(
-                            desde,
+                            new DateTime(2026,6,15),
                             DateTime.Now.Date
                         );
 
@@ -420,7 +420,7 @@ namespace SSAI.GeneradorPDF.facturas.usuarios
                 {
                     case "SPS":
                         rutaUsuario = $@"\\10.10.1.31\ca-sps\{usuario}";
-                        rutaDefault = @"\\10.10.1.31\ca-sps\dvelasquez\asistenteventassps";
+                        rutaDefault = @"\\10.10.1.31\ca-sps\asistenteventassps";
                         break;
 
                     case "TGU":
