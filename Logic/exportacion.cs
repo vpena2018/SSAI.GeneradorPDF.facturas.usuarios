@@ -336,6 +336,44 @@ namespace SSAI.GeneradorPDF.facturas.usuarios.Logic
             }
         }
 
+        public static async Task<int> EliminarFacturasPDFAnuladas(
+    DateTime? fechaInicio,
+    DateTime? fechaFin)
+        {
+            try
+            {
+                using (var connSec = new SqlConnection(connSSAI))
+                {
+                    await connSec.OpenAsync();
+
+                    using (var sqlc = new SqlCommand(
+                        "ELIMINAR_FACTURAS_PDF_ANULADAS_USUARIOS",
+                        connSec))
+                    {
+                        sqlc.CommandType = CommandType.StoredProcedure;
+
+                        sqlc.Parameters.AddWithValue(
+                            "@fechaInicio",
+                            (object)fechaInicio ?? DBNull.Value);
+
+                        sqlc.Parameters.AddWithValue(
+                            "@fechaFin",
+                            (object)fechaFin ?? DBNull.Value);
+
+                        object result = await sqlc.ExecuteScalarAsync();
+
+                        return result != null && result != DBNull.Value
+                            ? Convert.ToInt32(result)
+                            : 0;
+                    }
+                }
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+
         public static async Task<List<facturaEnvioRow>> ObtenerFacturasParaGenerarPDF(
 DateTime? fechaInicio,
 DateTime? fechaFin,

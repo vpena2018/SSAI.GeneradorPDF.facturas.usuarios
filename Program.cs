@@ -30,13 +30,16 @@ namespace SSAI.GeneradorPDF.facturas.usuarios
             try
             {
 
-                DateTime desde = DateTime.Today.AddDays(0);
+                DateTime desde = new DateTime(2026, 6, 25);
+                DateTime hasta = DateTime.Now.Date;
+
+                int eliminadas = await Logic.exportacion.EliminarFacturasPDFAnuladas(desde, hasta);
 
 
                 var facturas =
                     await Logic.exportacion
                         .ObtenerFacturasParaGenerarPDF(
-                            new DateTime(2026,6,15),
+                            new DateTime(2026,6,26),
                             DateTime.Now.Date
                         );
 
