@@ -112,6 +112,8 @@ namespace SSAI.GeneradorPDF.facturas.usuarios
 
                         Thread.Sleep(1000);
 
+                        string carpetaFacturas = string.Empty;
+
                         string contratoFinal = ObtenerContratoRentworks(
                         factura.contrato,
                         infocorrelativo);
@@ -127,12 +129,31 @@ namespace SSAI.GeneradorPDF.facturas.usuarios
                                         AppDomain.CurrentDomain.BaseDirectory,
                                         "errores.txt"
                                     ),
-                                    $"{DateTime.Now} - {$"No se encontró carpeta {DirectorioBasecarpetaFacturas} para contrato {contratoFinal}"}\r\n\r\n"
+                                    //$"{DateTime.Now} - {$"No se encontró carpeta {DirectorioBasecarpetaFacturas} para contrato {contratoFinal}"}\r\n\r\n"
+                                    $"{DateTime.Now} - {$"No se encontró Directorio {DirectorioBasecarpetaFacturas}"}\r\n\r\n"
                                 );
 
                                 continue;
                                 //Directory.CreateDirectory(DirectorioBasecarpetaFacturas);
                             }
+
+                            carpetaFacturas = ObtenerCarpetaContrato(DirectorioBasecarpetaFacturas, contratoFinal);
+
+                            if (string.IsNullOrEmpty(carpetaFacturas))
+                            {
+                                File.AppendAllText(
+                                    Path.Combine(
+                                        AppDomain.CurrentDomain.BaseDirectory,
+                                        "errores.txt"
+                                    ),
+                                    $"{DateTime.Now} - {$"No se encontró carpeta en directorio {DirectorioBasecarpetaFacturas} para contrato {contratoFinal}"}\r\n\r\n"
+                                );
+
+                                continue;
+                            }
+
+
+
                         }
                         catch (Exception ex)
                         {
@@ -148,7 +169,6 @@ namespace SSAI.GeneradorPDF.facturas.usuarios
                         }
 
 
-                        string carpetaFacturas = ObtenerCarpetaContrato(DirectorioBasecarpetaFacturas, contratoFinal);
 
                         if (string.IsNullOrEmpty(carpetaFacturas))
                         {
@@ -361,7 +381,7 @@ namespace SSAI.GeneradorPDF.facturas.usuarios
             return contrato;
         }
 
-        private static string ObtenerCarpetaContrato(
+        private static string ObtenerCarpetaContratoOld(
             string directorioBase,
             string contratoFinal)
         {
@@ -391,6 +411,36 @@ namespace SSAI.GeneradorPDF.facturas.usuarios
             return carpeta;
         }
 
+        private static string ObtenerCarpetaContrato(
+    string directorioBase,
+    string contratoFinal)
+        {
+            if (!Directory.Exists(directorioBase))
+            {
+                throw new Exception($"No existe la ruta {directorioBase}");
+            }
+
+            string numeroContrato = contratoFinal.Replace("Factura_", "");
+
+            foreach (var carpetaUsuario in Directory.GetDirectories(directorioBase))
+            {
+                string carpetaContrato = Directory
+                    .GetDirectories(carpetaUsuario)
+                    .FirstOrDefault(d =>
+                        Path.GetFileName(d)
+                            .StartsWith(
+                                numeroContrato,
+                                StringComparison.OrdinalIgnoreCase));
+
+                if (carpetaContrato != null)
+                {
+                    return carpetaContrato;
+                }
+            }
+
+            return null;
+        }
+
         private static string ObtenerRutaFacturas(string contrato, string usuario)
         {
             if (string.IsNullOrWhiteSpace(contrato))
@@ -414,18 +464,20 @@ namespace SSAI.GeneradorPDF.facturas.usuarios
                 ubicacion = ubicacion?.Trim().ToUpper();
 
                 string rutaUsuario;
-                string rutaDefault;
+                string rutaDefault=string.Empty;
 
                 switch (ubicacion)
                 {
                     case "SPS":
-                        rutaUsuario = $@"\\10.10.1.31\ca-sps\{usuario}";
-                        rutaDefault = @"\\10.10.1.31\ca-sps\asistenteventassps";
+                        //rutaUsuario = $@"\\10.10.1.31\ca-sps\{usuario}";
+                        //rutaDefault = @"\\10.10.1.31\ca-sps\asistenteventassps";
+                        rutaUsuario = $@"\\10.10.1.31\ca-sps";
                         break;
 
                     case "TGU":
-                        rutaUsuario = $@"\\10.10.1.31\ca-tgu\{usuario}";
-                        rutaDefault = @"\\10.10.1.31\ca-tgu\asistenteventastgu";
+                        //rutaUsuario = $@"\\10.10.1.31\ca-tgu\{usuario}";
+                        //rutaDefault = @"\\10.10.1.31\ca-tgu\asistenteventastgu";
+                        rutaUsuario = $@"\\10.10.1.31\ca-tgu";
                         break;
 
                     default:
