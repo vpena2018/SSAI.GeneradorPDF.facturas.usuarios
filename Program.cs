@@ -30,17 +30,17 @@ namespace SSAI.GeneradorPDF.facturas.usuarios
             try
             {
 
-                DateTime desde = new DateTime(2026, 6, 25);
+                DateTime desde = new DateTime(2026, 7, 1);
                 DateTime hasta = DateTime.Now.Date;
 
-                int eliminadas = await Logic.exportacion.EliminarFacturasPDFAnuladas(desde, hasta);
+                //int eliminadas = await Logic.exportacion.EliminarFacturasPDFAnuladas(desde, hasta);
 
 
                 var facturas =
                     await Logic.exportacion
                         .ObtenerFacturasParaGenerarPDF(
-                            new DateTime(2026,6,26),
-                            DateTime.Now.Date
+                            desde,
+                            hasta
                         );
 
                 var inforcorrelativos = new Models.Hertz_ProjectsEntities().correlatives.ToList();
@@ -106,6 +106,12 @@ namespace SSAI.GeneradorPDF.facturas.usuarios
 
                 foreach (var factura in facturas)
                 {
+
+                    //if (factura.contrato != "OPSPS_222999")
+                    //{
+                    //    continue;
+                    //}
+
                     try
                     {
 
@@ -266,12 +272,19 @@ namespace SSAI.GeneradorPDF.facturas.usuarios
                             if (pdfCopiasOk)
                             {
 
-                                //Directory.CreateDirectory(carpetaFacturas);
+                                
+                                //string rutaPdfFinal = Path.Combine(
+                                //    carpetaFacturas,
+                                //    $"{contratoFinal}.pdf"
+                                //);
 
-                                string rutaPdfFinal = Path.Combine(
-                                    carpetaFacturas,
-                                    $"{contratoFinal}.pdf"
-                                );
+                                //if(contratoFinal=="Factura_DSAP610619")
+                                //{
+                                //    var tmp = 0;
+                                //}
+
+                                string rutaPdfFinal=ObtenerRutaPdfDisponible(carpetaFacturas, contratoFinal);
+
 
                                 Logic.exportacion.UnirPdfs(
                                     rutasPdfGenerados,
@@ -335,6 +348,34 @@ namespace SSAI.GeneradorPDF.facturas.usuarios
             {
 
             }
+        }
+
+        //private static string ObtenerRutaPdfDisponible(string carpeta, string nombreArchivo)
+        //{
+        //    string ruta = Path.Combine(carpeta, $"{nombreArchivo}.pdf");
+
+        //    if (!File.Exists(ruta))
+        //        return ruta;
+
+        //    int contador = 1;
+
+        //    while (true)
+        //    {
+        //        ruta = Path.Combine(
+        //            carpeta,
+        //            nombreArchivo.Replace("Factura_", $"Factura{contador}_") + ".pdf"
+        //        );
+
+        //        if (!File.Exists(ruta))
+        //            return ruta;
+
+        //        contador++;
+        //    }
+        //}
+
+        private static string ObtenerRutaPdfDisponible(string carpeta, string nombreArchivo)
+        {
+            return Path.Combine(carpeta, $"{nombreArchivo}.pdf");
         }
 
 
